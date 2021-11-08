@@ -1,140 +1,40 @@
-import java.util.regex.Matcher
-import java.util.regex.Pattern
-
-apply plugin: 'com.android.application'
-
-
-project.ext {
-    supportAndroidVersion = "27.1.1"
-    daggerVersion = "2.13"
-    retrofitVersion = "2.0.2"
-    okhttpVersion = "3.2.0"
+plugins {
+    id 'com.android.application'
 }
 
-def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "1"
-
 android {
-    compileSdkVersion 27
-    defaultConfig {
-        applicationId "com.app.wiki"
-        minSdkVersion 15
-        targetSdkVersion 27
-        versionCode jenkinsBuild.toInteger()
-        versionName "1." + versionCode
-    }
+    compileSdkVersion 30
+    buildToolsVersion "30.0.2"
 
-    def appName = 'Jenkins POC'
-    flavorDimensions "jenkins"
+    defaultConfig {
+        applicationId "com.example.holamundo"
+        minSdkVersion 17
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
 
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-
-            applicationVariants.all { variant ->
-                variant.outputs.each { output ->
-                    def name = appName + "_" + getCurrentFlavor() + "_" + variant.mergedFlavor.versionName + "_" +
-                            variant.mergedFlavor.versionCode + "_" +
-                            getDate() + ".apk";
-                    output.outputFileName = name
-                }
-            }
-
-        }
-        debug {
-            debuggable true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
-    def primaryColor = '"#EFBF20"'
-    task(changeColor) {
-        if (project.hasProperty("color")) {
-            primaryColor = color;
-        }
-    }
-
-    def appIcon = '@mipmap/ic_launcher'
-    task(changeAppIcon) {
-        if (project.hasProperty("appicon")) {
-            appIcon = appicon;
-        }
-    }
-
-    task(changeAppName) {
-        if (project.hasProperty("appname")) {
-            appName = appname;
-        }
-    }
-
-    def appVersionCode = 1
-    task(versionCode) {
-        if (project.hasProperty("versioncode")) {
-            appVersionCode = Integer.parseInt(versioncode);;
-        }
-    }
-
-    def appVersionName = "1.0.0"
-    task(versionName) {
-        if (project.hasProperty("versionname")) {
-            appVersionName = versionname;
-        }
-    }
-
-    productFlavors {
-        development {
-            buildConfigField "String", "PRIMARY_COLOR", primaryColor
-            manifestPlaceholders = [
-                    appName: appName, appIcon: appIcon
-            ]
-            versionCode appVersionCode
-            versionName appVersionName
-        }
-        qa {
-            buildConfigField "String", "PRIMARY_COLOR", primaryColor
-            manifestPlaceholders = [
-                    appName: appName, appIcon: appIcon
-            ]
-            versionCode appVersionCode
-            versionName appVersionName
-        }
-    }
-
-    lintOptions {
-        abortOnError false
-        disable 'MissingTranslation'
-    }
-    dexOptions {
-        javaMaxHeapSize "4g"
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.google.code.gson:gson:2.8.0'
-    implementation "com.android.support:appcompat-v7:$project.supportAndroidVersion"
-    implementation "com.android.support:recyclerview-v7:$project.supportAndroidVersion"
-    implementation "com.android.support:cardview-v7:$project.supportAndroidVersion"
+
+    implementation 'androidx.appcompat:appcompat:1.3.1'
+    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    testImplementation 'junit:junit:4.+'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.17'
 }
-
-
-def getCurrentFlavor() {
-    Gradle gradle = getGradle()
-    String tskReqStr = gradle.getStartParameter().getTaskRequests().toString()
-    Pattern pattern;
-    pattern = Pattern.compile("assemble(\\w+)(Release|Debug)")
-    Matcher matcher = pattern.matcher(tskReqStr)
-    if (matcher.find()) {
-        return matcher.group(1).toLowerCase()
-    }
-    else {
-        println "NO MATCH FOUND"
-        return "";
-    }
-}
-
-def getDate() {
-    def date = new Date()
-    def formattedDate = date.format('yyyy-MM-dd')
-    return formattedDate
-}
-
