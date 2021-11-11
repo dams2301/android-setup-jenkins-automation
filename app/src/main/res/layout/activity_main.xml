@@ -43,6 +43,15 @@
         android:textColor="#B54AE3"
         android:textAlignment="center"
         android:textSize="85sp" />
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="5"
+        android:background="@color/purple_500"
+        android:text="Hola agregue este TextView para probar Jenkins"
+        android:textColor="#1A0323"
+        android:textAlignment="center"
+        android:textSize="85sp" />
 
     <pl.droidsonroids.gif.GifImageView
         android:layout_width="0dp"
